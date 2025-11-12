@@ -2,6 +2,8 @@ import express from "express"
 import dotenv from "dotenv"
 import pool from "./db.js";
 import tradeRoutes from "./routes/trades.js"
+import positionsRoutes from "./routes/positions.js"
+import pnlRoutes from "./routes/pnl.js"
 
 
 dotenv.config();
@@ -31,7 +33,9 @@ app.get("/db-test",
     }
 )
 
-app.use("/trades/", tradeRoutes);
+app.use("/trades", tradeRoutes);
+app.use("/positions", positionsRoutes);
+app.use("/pnl", pnlRoutes);
 
 app.listen(PORT, () => {
     console.log("server started on port -", PORT);

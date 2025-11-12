@@ -7,9 +7,11 @@ router.get("/", async (req, res) => {
 
     try {
 
-        const agg = pool.query("SELECT * FROM  positions ORDER BY symbol");
-        const lots = pool.query(`SELECT symbol, qty, original_qty, cost, created_at, closed_at 
+        const agg = await pool.query("SELECT * FROM  positions ORDER BY symbol");
+        const lots = await pool.query(`SELECT symbol, qty, original_qty, cost, created_at, closed_at 
             FROM lots WHERE qty>0 ORDER BY symbol, created_at`);
+
+        console.log(agg);
 
         const map = {};
         for (const row of agg.rows) {
@@ -21,7 +23,7 @@ router.get("/", async (req, res) => {
             }
         };
 
-        for (const l of lots) {
+        for (const l of lots.rows) {
             const s = l.symbol;
             if (!map[s])
                 map[s] = { symbol: s, open_qty: Number(l.qty), avg_cost: Number(l.cost), lots: [] };
