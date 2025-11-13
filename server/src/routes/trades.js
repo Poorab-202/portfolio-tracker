@@ -1,5 +1,6 @@
 import express from "express"
 import pool from "../db.js"
+import { producer } from "../kafka.js";
 
 const router = express.Router();
 
@@ -19,7 +20,18 @@ router.post("/", async (req, res) => {
             [symbol.toUpperCase(), qty, price, ts || new Date()]
         );
 
-        res.status(201).json(result.rows[0]);
+        const insertedTrade = result.rows[0];
+        await producer.send({
+            topic: "trades",
+            messages: [
+                {
+                    key: insertedTrade.symbol,
+                    value: JSON.stringify(insertedTrade)
+                }
+            ]
+        });
+        console.log("Published to Kafka:", insertedTrade);
+        res.status(201).json(insertedTrade);
 
     } catch (error) {
         console.error("Error inserting trade:", error);
